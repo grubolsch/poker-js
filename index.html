@@ -1,0 +1,129 @@
+<button id="flop">Flop</button>
+<button id="turn">Turn</button>
+<button id="river">River</button>
+
+<div id="public-area"></div>
+
+<br>
+
+<script>
+    const CARDS_IN_SUIT = 13;
+
+    let deck = [];
+
+    let suits = ['&spades;', '&hearts;', '&clubs;', '&diamondsuit;'];
+
+    suits.forEach((suit) => {
+        for (let i = 1; i <= CARDS_IN_SUIT; i++) {
+            deck.push({'suit': suit, 'value': i});
+        }
+    });
+
+    deck = deck.sort((a, b) => {
+        return Math.floor(Math.random() * 10) > 5 ? 1 : -1;
+    })
+
+    let players = [
+        {'name': 'Koen', 'cards': []},
+        {'name': 'Tim', 'cards': []},
+        {'name': 'Thomas', 'cards': []},
+        {'name': 'Arnaud', 'cards': []}
+    ];
+
+    let currentPlayDeck = deck;
+
+    players.forEach((player) => {
+        player.cards.push(currentPlayDeck.pop());
+        player.cards.push(currentPlayDeck.pop());
+    });
+
+    function dealCardPublic(numberOfDeals) {
+        for (let i = 0; i < numberOfDeals; i++) {
+            let card = currentPlayDeck.pop();
+            document.querySelector('#public-area').innerHTML += card.suit + ' ' + card.value;
+            publicCards.push(card);
+        }
+    }
+
+    let publicCards = [];
+    document.querySelector('#flop').addEventListener('click', function () {
+        document.querySelector('#public-area').innerHTML = '';
+        publicCards = [];
+
+        dealCardPublic(3);
+    });
+
+    document.querySelector('#turn').addEventListener('click', function () {
+        dealCardPublic(1);
+    });
+
+    document.querySelector('#river').addEventListener('click', function () {
+        dealCardPublic(1);
+        determineWinner(players, publicCards);
+    });
+
+    function determineWinner(players, publicCards) {
+        function getHighestValue(cards) {
+            let highestValue = 0;
+            cards.forEach(card => {
+               if(card.value > highestValue) {
+                   highestValue = card.value;
+               }
+            });
+            return highestValue;
+        }
+
+        function getPair(cards) {
+            let amountPairs = 0;
+            let highestPair = 0;
+
+            cards.forEach((card, outerIndex) => {
+                if(card.value < highestPair) {
+                    return;
+                }
+
+                cards.forEach((otherCard, innerIndex) => {
+                    if(innerIndex === outerIndex) {
+                        return;
+                    }
+
+                    if(card.value === otherCard.value) {
+                        highestPair++;
+                        if(card.value > highestPair) {
+                            highestPair = card.value;
+                        }
+                    }
+                });
+            });
+
+            return {'amount':  amountPairs, 'highestPair': highestPair};
+        }
+
+        function getThreeOfAKind() {
+            let highestValue = 0;
+            cards.forEach((card, outerIndex) => {
+                let hits = 0;
+                cards.forEach((otherCard, innerIndex) => {
+                    if(innerIndex === outerIndex) {
+                        return;
+                    }
+                    if(card.value === otherCard.value) {
+                        hits++;
+                    }
+                });
+
+                if(hits === 2 && card.value > highestValue) {
+                    highestValue = card.value;
+                }
+            });
+            return highestValue;
+        }
+
+        players.forEach(player => {
+            let cards = player.cards.concat(publicCards);
+            console.log(cards)
+
+
+        })
+    }
+</script>

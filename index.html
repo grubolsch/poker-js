@@ -7,16 +7,38 @@
 <br>
 
 <script>
-    const CARDS_IN_SUIT = 13;
+    // http://www.omdbapi.com/?apikey=[yourkey]&
+
+
+    const CARDS_IN_SUIT = 14;
 
     let deck = [];
 
-    let suits = ['&spades;', '&hearts;', '&clubs;', '&diamondsuit;'];
+    //let suits = {'spades': 127136, 'hearts': 127152, 'diamonds' :127168, 'clubs': 127184};
+    let suits = [
+        {'code': 127136, 'name': 'spades'},
+        {'code': 127152, 'name': 'hearts'},
+        {'code': 127168, 'name': 'diamonds'},
+        {'code': 127184, 'name': 'clubs'}
+    ];
+
+    function formatCard(card) {
+        let className = 'card '+ card.suit;
+        return '<span class="'+ className +'">'+ card.code +'</span>';
+    }
 
     suits.forEach((suit) => {
         for (let i = 1; i <= CARDS_IN_SUIT; i++) {
-            deck.push({'suit': suit, 'value': i});
+            deck.push({
+                'suit': suit.name,
+                'value': i,
+                'code': '&#'+ (suit.code+i) +';'
+            });
         }
+    });
+
+    deck.forEach(card => {
+        document.querySelector('#public-area').innerHTML += formatCard(card);
     });
 
     deck = deck.sort((a, b) => {
@@ -40,7 +62,7 @@
     function dealCardPublic(numberOfDeals) {
         for (let i = 0; i < numberOfDeals; i++) {
             let card = currentPlayDeck.pop();
-            document.querySelector('#public-area').innerHTML += card.suit + ' ' + card.value;
+            document.querySelector('#public-area').innerHTML += formatCard(card);
             publicCards.push(card);
         }
     }
@@ -121,9 +143,15 @@
 
         players.forEach(player => {
             let cards = player.cards.concat(publicCards);
-            console.log(cards)
-
-
-        })
+        });
     }
 </script>
+
+<style>
+    .card {
+        font-size: 3em;
+    }
+    .hearts, .diamonds {
+        color: red;
+    }
+</style>

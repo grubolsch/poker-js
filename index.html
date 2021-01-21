@@ -4,149 +4,6 @@
 
 <div id="public-area"></div>
 
-<br>
-
-<script>
-    // http://www.omdbapi.com/?apikey=[yourkey]&
-
-
-    const CARDS_IN_SUIT = 14;
-
-    let deck = [];
-
-    //let suits = {'spades': 127136, 'hearts': 127152, 'diamonds' :127168, 'clubs': 127184};
-    let suits = [
-        {'code': 127136, 'name': 'spades'},
-        {'code': 127152, 'name': 'hearts'},
-        {'code': 127168, 'name': 'diamonds'},
-        {'code': 127184, 'name': 'clubs'}
-    ];
-
-    function formatCard(card) {
-        let className = 'card '+ card.suit;
-        return '<span class="'+ className +'">'+ card.code +'</span>';
-    }
-
-    suits.forEach((suit) => {
-        for (let i = 1; i <= CARDS_IN_SUIT; i++) {
-            deck.push({
-                'suit': suit.name,
-                'value': i,
-                'code': '&#'+ (suit.code+i) +';'
-            });
-        }
-    });
-
-    deck.forEach(card => {
-        document.querySelector('#public-area').innerHTML += formatCard(card);
-    });
-
-    deck = deck.sort((a, b) => {
-        return Math.floor(Math.random() * 10) > 5 ? 1 : -1;
-    })
-
-    let players = [
-        {'name': 'Koen', 'cards': []},
-        {'name': 'Tim', 'cards': []},
-        {'name': 'Thomas', 'cards': []},
-        {'name': 'Arnaud', 'cards': []}
-    ];
-
-    let currentPlayDeck = deck;
-
-    players.forEach((player) => {
-        player.cards.push(currentPlayDeck.pop());
-        player.cards.push(currentPlayDeck.pop());
-    });
-
-    function dealCardPublic(numberOfDeals) {
-        for (let i = 0; i < numberOfDeals; i++) {
-            let card = currentPlayDeck.pop();
-            document.querySelector('#public-area').innerHTML += formatCard(card);
-            publicCards.push(card);
-        }
-    }
-
-    let publicCards = [];
-    document.querySelector('#flop').addEventListener('click', function () {
-        document.querySelector('#public-area').innerHTML = '';
-        publicCards = [];
-
-        dealCardPublic(3);
-    });
-
-    document.querySelector('#turn').addEventListener('click', function () {
-        dealCardPublic(1);
-    });
-
-    document.querySelector('#river').addEventListener('click', function () {
-        dealCardPublic(1);
-        determineWinner(players, publicCards);
-    });
-
-    function determineWinner(players, publicCards) {
-        function getHighestValue(cards) {
-            let highestValue = 0;
-            cards.forEach(card => {
-               if(card.value > highestValue) {
-                   highestValue = card.value;
-               }
-            });
-            return highestValue;
-        }
-
-        function getPair(cards) {
-            let amountPairs = 0;
-            let highestPair = 0;
-
-            cards.forEach((card, outerIndex) => {
-                if(card.value < highestPair) {
-                    return;
-                }
-
-                cards.forEach((otherCard, innerIndex) => {
-                    if(innerIndex === outerIndex) {
-                        return;
-                    }
-
-                    if(card.value === otherCard.value) {
-                        highestPair++;
-                        if(card.value > highestPair) {
-                            highestPair = card.value;
-                        }
-                    }
-                });
-            });
-
-            return {'amount':  amountPairs, 'highestPair': highestPair};
-        }
-
-        function getThreeOfAKind() {
-            let highestValue = 0;
-            cards.forEach((card, outerIndex) => {
-                let hits = 0;
-                cards.forEach((otherCard, innerIndex) => {
-                    if(innerIndex === outerIndex) {
-                        return;
-                    }
-                    if(card.value === otherCard.value) {
-                        hits++;
-                    }
-                });
-
-                if(hits === 2 && card.value > highestValue) {
-                    highestValue = card.value;
-                }
-            });
-            return highestValue;
-        }
-
-        players.forEach(player => {
-            let cards = player.cards.concat(publicCards);
-        });
-    }
-</script>
-
 <style>
     .card {
         font-size: 3em;
@@ -155,3 +12,8 @@
         color: red;
     }
 </style>
+
+<script>
+    //let suits = {'spades': 127136, 'hearts': 127152, 'diamonds' :127168, 'clubs': 127184};
+
+</script>

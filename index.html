@@ -1,13 +1,18 @@
-<button id="flop">Flop</button>
-<button id="turn">Turn</button>
-<button id="river">River</button>
+<button id="flop" class="game-action" data-amount="3">Flop</button>
+<button id="turn" class="game-action" data-amount="1">Turn</button>
+<button id="river" class="game-action" data-amount-test="1">River</button>
 
 <div id="public-area"></div>
+
+<div id="player-one">
+
+</div>
 
 <style>
     .card {
         font-size: 3em;
     }
+
     .hearts, .diamonds {
         color: red;
     }
@@ -16,4 +21,53 @@
 <script>
     //let suits = {'spades': 127136, 'hearts': 127152, 'diamonds' :127168, 'clubs': 127184};
 
+    let players = [
+        {'name': 'Koen', 'cards': []},//0
+        {'name': 'Paul', 'cards': []},//1
+        {'name': 'Sanne', 'cards': []},//2
+        {'name': 'Ik', 'cards': []},//3
+    ];
+
+    let deck = [];
+    let suits = ['spades', 'hearts', 'diamonds', 'clubs'];
+    let publicCards = [];
+
+    suits.forEach(function (suit) {
+        for (let i = 1; i <= 13; i++) {
+            deck.push({'suit': suit, 'value': i, 'fullName': i + " of "+ suit});
+        }
+    });
+
+    for (let i = 0; i < 10; i++) {
+        deck.sort(function () {
+            return Math.random() - Math.random();
+        });
+    }
+
+    // each player gets 2 cards
+    players.forEach(function (person) {
+        person.cards.push(deck.pop());
+        person.cards.push(deck.pop());
+    });
+
+    console.log(players);
+
+    players[0].cards.forEach(card => {
+        document.getElementById('player-one').innerText += card.fullName + ", ";
+    });
+
+    document.querySelectorAll('button.game-action').forEach((button) => {
+        button.addEventListener('click', function() {
+            for (let i = 0; i < this.dataset.amount; i++) {
+                let card = deck.pop();
+                publicCards.push(card);
+                document.getElementById('public-area').innerHTML += card.fullName + "<br>";
+            }
+            this.setAttribute('disabled', 'disabled');
+        });
+    });
+
+    function checkWinner() {
+        alert('Check winner');
+    }
 </script>

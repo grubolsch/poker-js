@@ -98,11 +98,7 @@
         //this line renders the entire deck
         //deck.forEach(card => document.getElementById('public-area').innerHTML += renderCard(card));
 
-        deck[deck.length-2] = deck[25];
-        let a = deck;
-        console.log(a)
-        return deck;
-        //return shuffle(deck);
+        return shuffle(deck);
     }
 
     /** @description In order to render the cards I am using the unicode code, in combination with a little bit of CSS to color the cards red/black.

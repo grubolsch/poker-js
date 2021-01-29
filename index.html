@@ -1,12 +1,19 @@
 <button id="flop" class="game-action" data-amount="3">Flop</button>
 <button id="turn" class="game-action" data-amount="1">Turn</button>
-<button id="river" class="game-action" data-amount-test="1">River</button>
+<button id="river" class="game-action" data-amount="1">River</button>
 
 <div id="public-area"></div>
 
-<div id="player-one">
+<p id="result"></p>
 
-</div>
+<h2>First player <span id="player-name-0"></span></h2>
+<div id="player-0"></div>
+<h2>Second player <span id="player-name-1"></span></h2>
+<div id="player-1"></div>
+<h2>Thirth player <span id="player-name-2"></span></h2>
+<div id="player-2"></div>
+<h2>Fourth player <span id="player-name-3"></span></h2>
+<div id="player-3"></div>
 
 <style>
     .card {
@@ -19,16 +26,56 @@
 </style>
 
 <script>
-    /** @description My original shuffle code using Math.random() - Math.random() was too naieve
-     * You can read more about the algorithm I use on https://javascript.info/array-methods#shuffle-an-array
-     * I did not know this :-) PHP has at least a build in shuffle function. :-P
-     * */
-    function shuffle(array) {
-        for (let i = array.length - 1; i > 0; i--) {
-            let j = Math.floor(Math.random() * (i + 1));
-            [array[i], array[j]] = [array[j], array[i]];//did you know you can assign multple variables in 1 line? Don't overuse this!
+    function createDeck() {
+        const CARDS_IN_SUIT = 13;
+        const SKIP_KNIGHT_CARD = 12;
+
+        /** @description My original shuffle code using Math.random() - Math.random() was too naieve
+         * You can read more about the algorithm I use on https://javascript.info/array-methods#shuffle-an-array
+         * I did not know this :-) PHP has at least a build in shuffle function. :-P
+         * */
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                let j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];//did you know you can assign multple variables in 1 line? Don't overuse this!
+            }
+            return array;
         }
-        return array;
+
+        /** @description
+         * Changed the array<string> to an array of objects to contain the start value of the unicode.
+         * Very often I find myself changing simple arrays to more complex arrays with object in it to contain multiple data points. */
+        let suits = [
+            {'code': 127136, 'name': 'spades'},
+            {'code': 127152, 'name': 'hearts'},
+            {'code': 127168, 'name': 'diamonds'},
+            {'code': 127184, 'name': 'clubs'}
+        ];
+
+        let deck = [];
+
+        suits.forEach(function (suit) {
+            for (let i = 1; i <= CARDS_IN_SUIT; i++) {
+                let code = suit.code+i;
+                /** @description In italian & spanish decks there is a knight card, this card normally appears between jack and queen.
+                 * We don't need it for Poker, so we are going to skip it by increasing the Unicode by 1 starting from the queen.
+                 * */
+                let value = i;
+                if(i >= SKIP_KNIGHT_CARD) {
+                    code++;
+                }
+                if(i === 1) {
+                    value = 14;
+                }
+
+                deck.push({'suit': suit.name, 'value': value, 'fullName': value + " of "+ suit.name, 'code': '&#'+ code +';'});
+            }
+        });
+
+        //this line renders the entire deck
+        //deck.forEach(card => document.getElementById('public-area').innerHTML += renderCard(card));
+
+        return shuffle(deck);
     }
 
     /** @description In order to render the cards I am using the unicode code, in combination with a little bit of CSS to color the cards red/black.
@@ -40,17 +87,9 @@
         return '<span class="card '+ card.suit +'">'+ card.code +'</span>';
     }
 
-    const CARDS_IN_SUIT = 13;
+    const MAX_PUBLIC_CARDS = 5;
 
-    /** @description
-     * Changed the array<string> to an array of objects to contain the start value of the unicode.
-     * Very often I find myself changing simple arrays to more complex arrays with object in it to contain multiple data points. */
-    let suits = [
-        {'code': 127136, 'name': 'spades'},
-        {'code': 127152, 'name': 'hearts'},
-        {'code': 127168, 'name': 'diamonds'},
-        {'code': 127184, 'name': 'clubs'}
-    ];
+    let deck = createDeck();
     let players = [
         {'name': 'Koen', 'cards': []},//0
         {'name': 'Paul', 'cards': []},//1
@@ -58,27 +97,7 @@
         {'name': 'Ik', 'cards': []},//3
     ];
 
-    let deck = [];
     let publicCards = [];
-
-    suits.forEach(function (suit) {
-        for (let i = 1; i <= CARDS_IN_SUIT; i++) {
-            let code = suit.code+i;
-            /** @description In italian & spanish decks there is a knight card, this card normally appears between jack and queen.
-             * We don't need it for Poker, so we are going to skip it by increasing the Unicode by 1 starting from the queen.
-             * */
-            if(i >= 12) {
-                code++;
-            }
-
-            deck.push({'suit': suit.name, 'value': i, 'fullName': i + " of "+ suit.name, 'code': '&#'+ code +';'});
-        }
-    });
-
-
-    //this line renders the entire deck
-    //deck.forEach(card => document.getElementById('public-area').innerHTML += renderCard(card));
-    deck = shuffle(deck);
 
     // each player gets 2 cards
     players.forEach(function (person) {
@@ -86,12 +105,12 @@
         person.cards.push(deck.pop());
     });
 
-    console.log(deck);
-    console.log(players);
-
-    players[0].cards.forEach(card => {
-        document.getElementById('player-one').innerHTML += renderCard(card);
-    });
+    players.forEach((player, index) => {
+        player.cards.forEach(card => {
+            document.getElementById('player-'+ index).innerHTML += renderCard(card);
+            document.getElementById('player-name-'+ index).innerText = player.name;
+        });
+    })
 
     document.querySelectorAll('button.game-action').forEach((button) => {
         button.addEventListener('click', function() {
@@ -101,10 +120,90 @@
                 document.getElementById('public-area').innerHTML += renderCard(card);
             }
             this.setAttribute('disabled', 'disabled');
+
+            if(publicCards.length === MAX_PUBLIC_CARDS) {
+                checkWinner();
+            }
         });
     });
 
     function checkWinner() {
-        alert('Check winner');
+        function findHighCard(player, publicCards) {
+            let cards = [...player.cards, ...publicCards];
+
+            cards.sort((a, b) => {
+                return b.value - a.value;
+            });
+
+            return {'value': cards[0].value, 'name': 'high card'};
+        }
+
+        function findPairs(player, publicCards) {
+            /*
+            * Pick First card
+            *      - Compare with ALL the other card for matches
+            *  IF no match found
+            *      - Repeat for second card
+            *  - Repeat for all community cards
+            * */
+            let cards = [...player.cards, ...publicCards];
+
+            let pair = 0;
+            cards.forEach(card => {
+                cards.forEach(innerCard => {
+                    if(card.value === innerCard.value && card.suit !== innerCard.suit && pair < card.value) {
+                        pair = card.value;
+                    }
+                });
+            });
+            return {'value': pair, 'name': 'pair'};
+        }
+
+        function findDoublePairs(player, publicCards) {
+            return {'value': 0, 'name': 'double pair'};
+        }
+
+        let combinations = [];
+        players.forEach(player => {
+            // If a strategy returns a 0 this means no combination was found
+
+            let strategies = [
+                findDoublePairs,
+                findPairs,
+                findHighCard,
+            ];
+
+            for(strategy of strategies) {
+                let strategyOutcome = strategy(player, publicCards);
+                if(strategyOutcome.value > 0) {
+                    combinations.push({'player': player, 'combination': strategyOutcome.name, 'value': strategyOutcome.value});
+                    break;
+                }
+            }
+
+
+
+
+            //missing quite some code here
+            // because I want to loop over ALL possible combinations
+            // pick the best one
+        });
+
+        let winningCombination = null;
+        combinations.forEach(combination => {
+            if(winningCombination === null || winningCombination.value <= combination.value) {
+                winningCombination = combination;
+            }
+        });
+        document.getElementById("result").innerText = winningCombination.player.name + ' wins the round with a '+ winningCombination.combination +' of '+ winningCombination.value +'!';
+
+        /*
+        * Loop over all players
+        *   - Find the strongest combination
+        *       - Loop over all possible combinations (high to low)
+        *       - Stop the loop at the highest combo
+        * Loop over all the strongest combinations
+        *    - Select the highest one
+        * */
     }
 </script>

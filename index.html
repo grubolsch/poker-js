@@ -6,12 +6,19 @@
 
 <p id="result"></p>
 
-<h2>First player <span id="player-name-0"></span></h2>
-<div id="player-0"></div>
+<section class="player">
+    <h2>First player <span id="player-name-0"></span></h2>
+    <div id="player-0"></div>
+</section>
+<section class="player">
 <h2>Second player <span id="player-name-1"></span></h2>
 <div id="player-1"></div>
+</section>
+<section class="player">
 <h2>Thirth player <span id="player-name-2"></span></h2>
 <div id="player-2"></div>
+</section>
+<section class="player">
 <h2>Fourth player <span id="player-name-3"></span></h2>
 <div id="player-3"></div>
 
@@ -68,14 +75,34 @@
                     value = 14;
                 }
 
-                deck.push({'suit': suit.name, 'value': value, 'fullName': value + " of "+ suit.name, 'code': '&#'+ code +';'});
+                let name = value;
+                switch(value) {
+                    case 14:
+                        name = 'Ace';
+                        break;
+                    case 13:
+                        name = 'King';
+                        break;
+                    case 12:
+                        name = 'Queen';
+                        break;
+                    case 11:
+                        name = 'Jack';
+                        break;
+                }
+
+                deck.push({'suit': suit.name, 'value': value, 'fullName': name + " of "+ suit.name, 'code': '&#'+ code +';'});
             }
         });
 
         //this line renders the entire deck
         //deck.forEach(card => document.getElementById('public-area').innerHTML += renderCard(card));
 
-        return shuffle(deck);
+        deck[deck.length-2] = deck[25];
+        let a = deck;
+        console.log(a)
+        return deck;
+        //return shuffle(deck);
     }
 
     /** @description In order to render the cards I am using the unicode code, in combination with a little bit of CSS to color the cards red/black.
@@ -164,7 +191,8 @@
         }
 
         let combinations = [];
-        players.forEach(player => {
+        //@description Some is the same as forEach()
+        players.some(player => {
             // If a strategy returns a 0 this means no combination was found
 
             let strategies = [
@@ -181,8 +209,12 @@
                 }
             }
 
-
-
+            //@description jump out of finding combos once we found a high combo, going lower is pointless
+            /* UNCOMMENT THIS TO MAKE THE CODE WORK!!!
+            if(combinations.length >= 0) {
+                return true;
+            }
+            */
 
             //missing quite some code here
             // because I want to loop over ALL possible combinations
